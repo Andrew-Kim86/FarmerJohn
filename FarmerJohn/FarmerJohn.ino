@@ -28,6 +28,11 @@
 #define PwmMax 255
 #define rest 0
 
+//States
+#define IDLE 1
+#define SYNC 2
+#define PLAY 3
+
 //Inputs
 #define pOctaveUp 5
 #define pOctaveDown 6
@@ -41,11 +46,6 @@
 #define pHeadServo 9
 #define pArmServo 10
 //hex display/LCD pins
-
-//Music Notes
-int songLength = 54;  
-int notes[] = {C, rest, C, rest, C, rest, D, rest, E, rest, E, rest, D, rest, E, rest, F, rest, G, rest, high_C, rest, high_C, rest, high_C, rest, G, rest, G, rest, G, rest, E, rest, E, rest, E, rest, C, rest, C, rest, C, rest, G, rest, F, rest, E, rest, D, rest, C, rest};
-int beats[] = {2,1,2,1,2,1,1,1,2,1,2,1,1,1,2,1,1,1,6,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,1,1,1,2,1,1,1,5,1};
 
 //Song Parameters
 int ConductorOctave = 4;
@@ -61,6 +61,12 @@ double G =  24.49971*pow(2,MyOctave);
 double A =  27.5*pow(2,MyOctave);
 double B =  30.86771*pow(2,MyOctave);
 double high_C =  32.70320*pow(2,MyOctave);
+
+//Music Notes
+int songLength = 54;  
+int notes[] = {C, rest, C, rest, C, rest, D, rest, E, rest, E, rest, D, rest, E, rest, F, rest, G, rest, high_C, rest, high_C, rest, high_C, rest, G, rest, G, rest, G, rest, E, rest, E, rest, E, rest, C, rest, C, rest, C, rest, G, rest, F, rest, E, rest, D, rest, C, rest};
+int beats[] = {2,1,2,1,2,1,1,1,2,1,2,1,1,1,2,1,1,1,6,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,1,1,1,2,1,1,1,5,1};
+
 
 //Hardware
 Servo HeadServo;
@@ -78,13 +84,34 @@ void setup()
     pinMode(pOctaveDown, INPUT);
 
     //Servos
-    HeadServo.attatch(pHeadServo);
-    ArmServo.attatch(pArmServo);
+    HeadServo.attach(pHeadServo);
+    ArmServo.attach(pArmServo);
+    HeadServo.write(0);
+    ArmServo.write(0);
+
+    //Debug
+    Serial.begin(9600);
+    Serial.print("Setup Complete\n");
 }
 
 void idle()
 {
-
+  if(digitalRead(pOctaveUp) == LOW)
+  {
+    ConductorOctave++;
+    Serial.print("Conductor Octave: ");
+    Serial.print(ConductorOctave);
+    Serial.print("\n");
+    delay(50);
+  }
+  if(digitalRead(pOctaveDown) == LOW)
+  {
+    ConductorOctave--;
+    Serial.print("Conductor Octave: ");
+    Serial.print(ConductorOctave);
+    Serial.print("\n");
+    delay(50);
+  }
 }
 
 void sync()
@@ -99,5 +126,14 @@ void play()
 
 void loop() {
   // put your main code here, to run repeatedly:
-
+  int currentState = IDLE;
+  switch (currentState) {
+    case IDLE:
+      idle();
+      break;
+    case SYNC:
+      
+    case PLAY:
+      break;
+  }
 }
