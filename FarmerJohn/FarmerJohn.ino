@@ -5,7 +5,7 @@
 //    Row Row Your Boat, and then also play the song
 //    at a different octave synced with the conductor.
 // Design Name:   Farmer John
-// File Name:     farmerJohn.c
+// File Name:     farmerJohn.ino
 //
 // Inputs: 
 //    Box Tilt Sensor: Tell the Conductor when the box is opened
@@ -49,7 +49,7 @@
 
 //Song Parameters
 int ConductorOctave = 4;
-int MyOctave = 4;
+int MyOctave = 5;
 int song_tempo = 250;
 
 //Music Notes based on Octave--
@@ -96,21 +96,27 @@ void setup()
 
 void idle()
 {
-  if(digitalRead(pOctaveUp) == LOW)
+  if(digitalRead(pOctaveUp) == LOW && ConductorOctave != 9)
   {
-    ConductorOctave++;
-    Serial.print("Conductor Octave: ");
+    ConductorOctave = ++ConductorOctave%10;
+    MyOctave = (ConductorOctave+1)%10;
+    Serial.print("Conductor Octave|MyOctave: ");
     Serial.print(ConductorOctave);
+    Serial.print(", ");
+    Serial.print(MyOctave);
     Serial.print("\n");
-    delay(50);
+    delay(75);
   }
-  if(digitalRead(pOctaveDown) == LOW)
+  if(digitalRead(pOctaveDown) == LOW && ConductorOctave != 0)
   {
-    ConductorOctave--;
-    Serial.print("Conductor Octave: ");
+    ConductorOctave = --ConductorOctave;
+    MyOctave = (ConductorOctave+1)%10;
+    Serial.print("Conductor Octave|MyOctave: ");
     Serial.print(ConductorOctave);
+    Serial.print(", ");
+    Serial.print(MyOctave);
     Serial.print("\n");
-    delay(50);
+    delay(75);
   }
 }
 
@@ -127,12 +133,13 @@ void play()
 void loop() {
   // put your main code here, to run repeatedly:
   int currentState = IDLE;
-  switch (currentState) {
+  switch (currentState) 
+  {
     case IDLE:
       idle();
       break;
     case SYNC:
-      
+      break;
     case PLAY:
       break;
   }
