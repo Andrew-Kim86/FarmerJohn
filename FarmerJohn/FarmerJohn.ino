@@ -43,6 +43,7 @@
 #define pYellowLED 7
 #define pGreenLED 8
 #define pConductorOctave 12
+#define pSpeaker 11
 #define pHeadServo 9
 #define pArmServo 10
 //hex display/LCD pins
@@ -52,15 +53,16 @@ int ConductorOctave = 4;
 int MyOctave = 5;
 int song_tempo = 250;
 
-//Music Notes based on Octave--
-double C =  16.3516*pow(2,MyOctave);
-double D =  18.35405*pow(2,MyOctave);
-double E =  20.60172*pow(2,MyOctave);
-double F =  21.82676*pow(2,MyOctave);
-double G =  24.49971*pow(2,MyOctave);
-double A =  27.5*pow(2,MyOctave);
-double B =  30.86771*pow(2,MyOctave);
-double high_C =  32.70320*pow(2,MyOctave);
+//Music Notes
+#define C 16.3516
+#define D 18.35405
+#define E 20.60172
+#define F 21.82676
+#define G 24.49971
+#define A 27.5
+#define B 30.86771
+#define high_C 32.70320
+#define rest 0
 
 //Music Notes
 int songLength = 54;  
@@ -73,6 +75,7 @@ Servo HeadServo;
 Servo ArmServo;
 
 int currentState;
+int i_note_index;
 void setup()
 {
     //LEDs
@@ -86,6 +89,9 @@ void setup()
   
     //Conductor Signal
     pinMode(pConductorSignal, INPUT);
+  
+    //Speaker
+    pinMode(pSpeaker, OUTPUT);
 
     //Servos
     HeadServo.attach(pHeadServo);
@@ -146,7 +152,14 @@ void sync()
 
 void play()
 {
-
+  for(int i = 1; i < songLength; i++)
+  {
+    //play the song
+    int duration = beats[i] * song_tempo;
+    tone(pSpeaker, notes[i]*pow(2,MyOctave), duration);
+    delay(duration);
+  }
+  currentState = IDLE;
 }
 
 void loop() {
@@ -160,6 +173,7 @@ void loop() {
       sync();
       break;
     case PLAY:
+      play();
       break;
   }
 }
