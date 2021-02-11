@@ -72,6 +72,7 @@ int beats[] = {2,1,2,1,2,1,1,1,2,1,2,1,1,1,2,1,1,1,6,1,1,1,1,1,1,1,1,1,1,1,1,1,1
 Servo HeadServo;
 Servo ArmServo;
 
+int currentState;
 void setup()
 {
     //LEDs
@@ -82,16 +83,23 @@ void setup()
     //Octave Selection
     pinMode(pOctaveUp, INPUT);
     pinMode(pOctaveDown, INPUT);
+  
+    //Conductor Signal
+    pinMode(pConductorSignal, INPUT);
 
     //Servos
     HeadServo.attach(pHeadServo);
     ArmServo.attach(pArmServo);
     HeadServo.write(0);
     ArmServo.write(0);
+  
+    //State Machine
+    currentState = IDLE;
 
     //Debug
     Serial.begin(9600);
     Serial.print("Setup Complete\n");
+    delay(1000);
 }
 
 void idle()
@@ -118,11 +126,22 @@ void idle()
     Serial.print("\n");
     delay(75);
   }
+  if(digitalRead(pConductorSignal) == HIGH)
+  {
+    currentState = SYNC;
+  }  
 }
 
 void sync()
 {
-
+  long start = millis();
+  while(digitalRead(pConductorSignal) == HIGH) {}
+  long end = millis();
+  song_tempo = (end-start)/2;
+  Serial.print("Tempo: ");
+  Serial.print(song_tempo);
+  Serial.print("\n");
+  currentState = PLAY;
 }
 
 void play()
@@ -132,13 +151,13 @@ void play()
 
 void loop() {
   // put your main code here, to run repeatedly:
-  int currentState = IDLE;
   switch (currentState) 
   {
     case IDLE:
       idle();
       break;
     case SYNC:
+      sync();
       break;
     case PLAY:
       break;
