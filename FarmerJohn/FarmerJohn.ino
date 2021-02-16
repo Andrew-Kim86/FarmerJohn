@@ -17,6 +17,11 @@
 //
 // History:       8 February 2021 File created
 //                8 February Added base conductor params
+//                8 February Buttons added
+//                10 February Changes from meeting notes
+//                11 February Tempo Detection
+//                11 February Notes playing
+//                16 February Detection Test
 //
 //-----------------------------------------------------
 #include <Servo.h>
@@ -82,6 +87,9 @@ void setup()
     pinMode(pRedLED, OUTPUT);
     pinMode(pYellowLED, OUTPUT);
     pinMode(pGreenLED, OUTPUT);
+    digitalWrite(pRedLED, HIGH);
+    digitalWrite(pYellowLED, HIGH);
+    digitalWrite(pGreenLED, HIGH);
 
     //Octave Selection
     pinMode(pOctaveUp, INPUT);
@@ -106,6 +114,8 @@ void setup()
     Serial.begin(9600);
     Serial.print("Setup Complete\n");
     delay(1000);
+    digitalWrite(pYellowLED, LOW);
+    digitalWrite(pGreenLED, LOW);
 }
 
 void idle()
@@ -143,6 +153,8 @@ void sync()
   long start = millis();
   while(digitalRead(pConductorSignal) == HIGH) {}
   long end = millis();
+  while(digitalRead(pConductorSignal) == LOW) {}
+  long end2 = millis();
   song_tempo = (end-start)/2;
   Serial.print("Tempo: ");
   Serial.print(song_tempo);
@@ -152,13 +164,15 @@ void sync()
 
 void play()
 {
-  for(int i = 1; i < songLength; i++)
+  int duration;
+  for(int i = 1; i < 53; i++)
   {
     //play the song
-    int duration = beats[i] * song_tempo;
+    duration = beats[i] * song_tempo;
     tone(pSpeaker, notes[i]*pow(2,MyOctave), duration);
     delay(duration);
   }
+  delay(duration/2);
   currentState = IDLE;
 }
 
