@@ -13,8 +13,8 @@ void setup()
 {
     Serial.begin(9600);
     DDRD = 0xFF;
-    pinMode(pushUp, INPUT);
-    pinMode(pushDown, INPUT);
+    pinMode(pushUp, INPUT);   // Button 1
+    pinMode(pushDown, INPUT); // Button 2
     pinMode(redLED, OUTPUT);
     pinMode(yellowLED, OUTPUT);
     pinMode(greenLED, OUTPUT);
@@ -44,7 +44,7 @@ void loop()
     Serial.print(ValPot1);
     Serial.println();
     Serial.print("ValPotMap = ");
-    Serial.print(ValPotMap);
+    Serial.print(ValPotMap); // Returns the value of the potentiometer
     if (ValPotMap == 9)
     {
         digitalWrite(greenLED, HIGH);
