@@ -84,39 +84,39 @@ int i_note_index;
 
 void setup()
 {
-    //LEDs
-    pinMode(pRedLED, OUTPUT);
-    pinMode(pYellowLED, OUTPUT);
-    pinMode(pGreenLED, OUTPUT);
-    digitalWrite(pRedLED, HIGH);
-    digitalWrite(pYellowLED, HIGH);
-    digitalWrite(pGreenLED, HIGH);
+  //LEDs
+  pinMode(pRedLED, OUTPUT);
+  pinMode(pYellowLED, OUTPUT);
+  pinMode(pGreenLED, OUTPUT);
+  digitalWrite(pRedLED, HIGH);
+  digitalWrite(pYellowLED, HIGH);
+  digitalWrite(pGreenLED, HIGH);
 
-    //Octave Selection
-    pinMode(pOctaveUp, INPUT);
-    pinMode(pOctaveDown, INPUT);
+  //Octave Selection
+  pinMode(pOctaveUp, INPUT);
+  pinMode(pOctaveDown, INPUT);
   
-    //Conductor Signal
-    pinMode(pConductorSignal, INPUT);
+  //Conductor Signal
+  pinMode(pConductorSignal, INPUT);
   
-    //Speaker
-    pinMode(pSpeaker, OUTPUT);
+  //Speaker
+  pinMode(pSpeaker, OUTPUT);
 
-    //Servos
-    HeadServo.attach(pHeadServo);
-    ArmServo.attach(pArmServo);
-    HeadServo.write(0);
-    ArmServo.write(0);
+  //Servos
+  HeadServo.attach(pHeadServo);
+  ArmServo.attach(pArmServo);
+  HeadServo.write(0);
+  ArmServo.write(0);
   
-    //State Machine
-    currentState = IDLE;
+  //State Machine
+  currentState = IDLE;
 
-    //Debug
-    Serial.begin(9600);
-    Serial.print("Setup Complete\n");
-    delay(1000);
-    digitalWrite(pYellowLED, LOW);
-    digitalWrite(pGreenLED, LOW);
+  //Debug
+  Serial.begin(9600);
+  Serial.print("Setup Complete\n");
+  delay(1000);
+  digitalWrite(pYellowLED, LOW);
+  digitalWrite(pGreenLED, LOW);
 }
 
 void idle()
@@ -162,6 +162,8 @@ void sync()
   calc2 = t3-t2;
   if(abs(calc1-calc2) <= 5)
     song_tempo = (calc1+calc2)/2;
+  else
+    song_tempo = (calc1 > calc2) ? calc1 : calc2;
   Serial.print("Tempo: ");
   Serial.print(song_tempo);
   Serial.print("\n");
@@ -170,6 +172,7 @@ void sync()
 
 void play()
 {
+  i_note_index = 1;
   int duration;
   for(int i = 1; i < 53; i++)
   {
@@ -178,11 +181,12 @@ void play()
     tone(pSpeaker, notes[i]*pow(2,MyOctave), duration);
     delay(duration);
   }
-  delay(duration/2);
+  //delay(duration/2);
   currentState = IDLE;
 }
 
-void loop() {
+void loop() 
+{
   // put your main code here, to run repeatedly:
   switch (currentState) 
   {
