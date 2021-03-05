@@ -39,19 +39,19 @@
 #define PLAY 3
 
 //Inputs
-#define pOctaveUp 5
-#define pOctaveDown 6
-#define pConductorSignal 2
+#define pOctaveUp A1
+#define pOctaveDown A2
+#define pConductorSignal A0
 
 //Outputs
 #define pRedLED 4
 #define pYellowLED 7
 #define pGreenLED 8
-#define pConductorOctave 12
+//Conductor octave pins 0, 1, 2
 #define pSpeaker 11
 #define pHeadServo 9
 #define pArmServo 10
-//hex display/LCD pins
+//hex display pins 5,6,12,13
 
 //Song Parameters
 int ConductorOctave = 4;
@@ -81,6 +81,7 @@ Servo ArmServo;
 
 int currentState;
 int i_note_index;
+
 void setup()
 {
     //LEDs
@@ -150,12 +151,17 @@ void idle()
 
 void sync()
 {
-  long start = millis();
+  int calc1;
+  int calc2;
+  long t1 = millis();
   while(digitalRead(pConductorSignal) == HIGH) {}
-  long end = millis();
+  long t2 = millis();
   while(digitalRead(pConductorSignal) == LOW) {}
-  long end2 = millis();
-  song_tempo = (end-start)/2;
+  long t3 = millis();
+  calc1 = (t2-t1)/2;
+  calc2 = t3-t2;
+  if(abs(calc1-calc2) <= 5)
+    song_tempo = (calc1+calc2)/2;
   Serial.print("Tempo: ");
   Serial.print(song_tempo);
   Serial.print("\n");
