@@ -47,11 +47,16 @@
 #define pRedLED 4
 #define pYellowLED 7
 #define pGreenLED 8
-//Conductor octave pins 0, 1, 2
+#define oct0 0
+#define oct1 1
+#define oct2 2
 #define pSpeaker 11
 #define pHeadServo 9
 #define pArmServo 10
-//hex display pins 5,6,12,13
+#define hex0 5
+#define hex1 6
+#define hex2 12
+#define hex3 13
 
 //Song Parameters
 int ConductorOctave = 4;
@@ -74,13 +79,52 @@ int songLength = 54;
 int notes[] = {C, rest, C, rest, C, rest, D, rest, E, rest, E, rest, D, rest, E, rest, F, rest, G, rest, high_C, rest, high_C, rest, high_C, rest, G, rest, G, rest, G, rest, E, rest, E, rest, E, rest, C, rest, C, rest, C, rest, G, rest, F, rest, E, rest, D, rest, C, rest};
 int beats[] = {2,1,2,1,2,1,1,1,2,1,2,1,1,1,2,1,1,1,6,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,1,1,1,2,1,1,1,5,1};
 
-
 //Hardware
 Servo HeadServo;
 Servo ArmServo;
 
 int currentState;
 int i_note_index;
+
+void octaveOut()
+{
+  digitalWrite(hex3, LOW);
+  switch(ConductorOctave)
+  {
+    case 4:
+      digitalWrite(oct0, LOW);
+      digitalWrite(oct1, LOW);
+      digitalWrite(oct2, HIGH);
+      digitalWrite(hex0, LOW);
+      digitalWrite(hex1, LOW);
+      digitalWrite(hex2, HIGH);
+      break;
+    case 5:
+      digitalWrite(oct0, HIGH);
+      digitalWrite(oct1, LOW);
+      digitalWrite(oct2, HIGH);
+      digitalWrite(hex0, HIGH);
+      digitalWrite(hex1, LOW);
+      digitalWrite(hex2, HIGH);
+      break;
+    case 6:
+      digitalWrite(oct0, LOW);
+      digitalWrite(oct1, HIGH);
+      digitalWrite(oct2, HIGH);
+      digitalWrite(hex0, LOW);
+      digitalWrite(hex1, HIGH);
+      digitalWrite(hex2, HIGH);
+      break;
+    case 7:
+      digitalWrite(oct0, HIGH);
+      digitalWrite(oct1, HIGH);
+      digitalWrite(oct2, HIGH);
+      digitalWrite(hex0, HIGH);
+      digitalWrite(hex1, HIGH);
+      digitalWrite(hex2, HIGH);
+      break;
+  }
+}
 
 void setup()
 {
@@ -107,6 +151,17 @@ void setup()
   ArmServo.attach(pArmServo);
   HeadServo.write(0);
   ArmServo.write(0);
+
+  //Hex
+  pinMode(hex0, OUTPUT);
+  pinMode(hex1, OUTPUT);
+  pinMode(hex2, OUTPUT);
+  pinMode(hex3, OUTPUT);
+
+  //Octave
+  pinMode(oct0, OUTPUT);
+  pinMode(oct1, OUTPUT);
+  pinMode(oct2, OUTPUT);
   
   //State Machine
   currentState = IDLE;
@@ -121,10 +176,11 @@ void setup()
 
 void idle()
 {
-  if(digitalRead(pOctaveUp) == LOW && ConductorOctave != 9)
+  if(digitalRead(pOctaveUp) == LOW && ConductorOctave != 7)
   {
     ConductorOctave = ++ConductorOctave%10;
     MyOctave = (ConductorOctave+1)%10;
+    octaveOut();
     Serial.print("Conductor Octave|MyOctave: ");
     Serial.print(ConductorOctave);
     Serial.print(", ");
@@ -132,10 +188,11 @@ void idle()
     Serial.print("\n");
     delay(75);
   }
-  if(digitalRead(pOctaveDown) == LOW && ConductorOctave != 0)
+  if(digitalRead(pOctaveDown) == LOW && ConductorOctave != 4)
   {
     ConductorOctave = --ConductorOctave;
     MyOctave = (ConductorOctave+1)%10;
+    octaveOut();
     Serial.print("Conductor Octave|MyOctave: ");
     Serial.print(ConductorOctave);
     Serial.print(", ");
@@ -174,7 +231,7 @@ void play()
 {
   i_note_index = 1;
   int duration;
-  for(int i = 1; i < 53; i++)
+  for(int i = 2; i < 53; i++)
   {
     //play the song
     duration = beats[i] * song_tempo;
@@ -187,7 +244,6 @@ void play()
 
 void loop() 
 {
-  // put your main code here, to run repeatedly:
   switch (currentState) 
   {
     case IDLE:
