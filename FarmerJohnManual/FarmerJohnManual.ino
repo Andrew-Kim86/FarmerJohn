@@ -40,8 +40,8 @@
 #define PLAY 3
 
 //Inputs
-#define pOctaveUp A1
-#define pOctaveDown A2
+#define pOctaveCycle A1
+#define pPlay A2
 #define pConductorSignal A0
 
 //Outputs
@@ -138,8 +138,9 @@ void setup()
   digitalWrite(pGreenLED, HIGH);
 
   //Octave Selection
-  pinMode(pOctaveUp, INPUT);
-  pinMode(pOctaveDown, INPUT);
+  pinMode(pOctaveCycle, INPUT);
+  //Start
+  pinMode(pPlay, INPUT);
   
   //Conductor Signal
   pinMode(pConductorSignal, INPUT);
@@ -177,10 +178,12 @@ void setup()
 
 void idle()
 {
-  if(digitalRead(pOctaveUp) == LOW && ConductorOctave != 7)
+  if(digitalRead(pOctaveCycle) == LOW)
   {
-    ConductorOctave = ++ConductorOctave%10;
-    MyOctave = (ConductorOctave+1)%10;
+    ConductorOctave = ++ConductorOctave;
+    if(ConductorOctave == 8)
+      ConductorOctave = 4;
+    MyOctave = (ConductorOctave+1);
     octaveOut();
     Serial.print("Conductor Octave|MyOctave: ");
     Serial.print(ConductorOctave);
@@ -189,27 +192,16 @@ void idle()
     Serial.print("\n");
     delay(75);
   }
-  if(digitalRead(pOctaveDown) == LOW && ConductorOctave != 4)
-  {
-    ConductorOctave = --ConductorOctave;
-    MyOctave = (ConductorOctave+1)%10;
-    octaveOut();
-    Serial.print("Conductor Octave|MyOctave: ");
-    Serial.print(ConductorOctave);
-    Serial.print(", ");
-    Serial.print(MyOctave);
-    Serial.print("\n");
-    delay(75);
-  }
-  if(digitalRead(pConductorSignal) == HIGH)
+  if(digitalRead(pPlay) == LOW)
   {
     currentState = SYNC;
-  }  
+    delay(75);
+  }
 }
 
 void sync()
 {
-  int calc1;
+  /*int calc1;
   int calc2;
   long t1 = millis();
   while(digitalRead(pConductorSignal) == HIGH) {}
@@ -222,6 +214,7 @@ void sync()
     song_tempo = (calc1+calc2)/2;
   else
     song_tempo = (calc1 > calc2) ? calc1 : calc2;
+  */
   Serial.print("Tempo: ");
   Serial.print(song_tempo);
   Serial.print("\n");
@@ -232,7 +225,7 @@ void play()
 {
   i_note_index = 1;
   int duration;
-  for(int i = 2; i < 53; i++)
+  for(int i = 0; i < 53; i++)
   {
     //play the song
     duration = beats[i] * song_tempo;
