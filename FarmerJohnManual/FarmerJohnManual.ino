@@ -1,11 +1,9 @@
 //-----------------------------------------------------
 // Team-2B
 // Overview
-//    The device will listen for a conductor to play
-//    Row Row Your Boat, and then also play the song
-//    at a different octave synced with the conductor.
-// Design Name:   Farmer John
-// File Name:     farmerJohn.ino
+//    Manual mode plays music after button is pressed
+// Design Name:   Farmer John Manual
+// File Name:     farmerJohnManual.ino
 //
 // Inputs: 
 //    Box Tilt Sensor: Tell the Conductor when the box is opened
