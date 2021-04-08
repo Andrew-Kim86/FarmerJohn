@@ -225,8 +225,13 @@ void play()
 {
   i_note_index = 1;
   int duration;
+  int servoPos = 0;
   for(int i = 0; i < 53; i++)
   {
+    //position servos
+    servoPos = (servoPos+15)%180;
+    HeadServo.write(servoPos);
+    ArmServo.write(servoPos);
     //play the song
     duration = beats[i] * song_tempo;
     tone(pSpeaker, notes[i]*pow(2,MyOctave), duration);
