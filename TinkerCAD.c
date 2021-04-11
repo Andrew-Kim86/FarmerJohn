@@ -1,64 +1,118 @@
-int PinPot1 = 0;
-int ValPot1 = 0;
-int ValPotMap = 0;
-int num[10] = {0x00, 0x10, 0x20, 0x30, 0x40, 0x50, 0x60, 0x70, 0x80, 0x90};
-int redLED = 13;
-int yellowLED = 11;
-int greenLED = 8;
-int pushUp = 3;
-int pushDown = 2;
-int octaveVal = 0;
+#include <Bounce2.h>
+
+int pin;
+
+Bounce increment = Bounce();
+Bounce decrement = Bounce();
+
+int val = 0;
 
 void setup()
 {
-    Serial.begin(9600);
-    DDRD = 0xFF;
-    pinMode(pushUp, INPUT);   // Button 1
-    pinMode(pushDown, INPUT); // Button 2
-    pinMode(redLED, OUTPUT);
-    pinMode(yellowLED, OUTPUT);
-    pinMode(greenLED, OUTPUT);
-    digitalWrite(redLED, HIGH);
+    increment.attach(A2, INPUT_PULLUP); //Button to increment
+    decrement.attach(A1, INPUT_PULLUP); // Button to decrement
+
+    increment.interval(10);
+    decrement.interval(10);
+    pinMode(5, OUTPUT);  // For CD4511
+    pinMode(6, OUTPUT);  // For CD4511
+    pinMode(8, OUTPUT);  // For LED
+    pinMode(11, OUTPUT); // For Speakers
+    pinMode(12, OUTPUT); // For CD4511
+    pinMode(13, OUTPUT); // For CD4511
 }
+
 void loop()
 {
-    int buttonStateUp = digitalRead(pushUp);
-    int buttonStateDown = digitalRead(pushDown);
+    increment.update();
+    decrement.update();
 
-    if (buttonStateUp == 1 && octaveVal < 10)
+    if (increment.fell() == true && val < 10)
     {
-        octaveVal++;
+        digitalWrite(8, HIGH); // LED test to see if the LED lights when pushing the top most button
+        ++val;
     }
-    else if (buttonStateDown == 1 && octaveVal > 0)
+    if (decrement.fell() == true && val > -1)
     {
-        octaveVal--;
+        digitalWrite(8, LOW); // Turn off the LED
+        --val;
     }
-    Serial.print("OctaveVal = ");
-    Serial.print(octaveVal);
-    digitalWrite(redLED, LOW);
-    digitalWrite(yellowLED, HIGH);
-    ValPotMap = map(ValPot1, 0, 1023, 0, 9);
-    ValPot1 = analogRead(PinPot1);
-    Serial.println();
-    Serial.print("ValPot1 = ");
-    Serial.print(ValPot1);
-    Serial.println();
-    Serial.print("ValPotMap = ");
-    Serial.print(ValPotMap); // Returns the value of the potentiometer
-    if (ValPotMap == 9)
+    d7seg(val);        // Show the value
+    Serial.print(val); // Print the value for test
+    tone(11, 200);     // Setting a tone for the Speakers
+    //  delay(200);
+}
+void d7seg(int valor) // Sets individual LED by setting the 4 LED Pins for CD4511
+{
+    if (val == 0)
     {
-        digitalWrite(greenLED, HIGH);
-        digitalWrite(yellowLED, LOW);
-        digitalWrite(redLED, LOW);
+        digitalWrite(13, LOW);
+        digitalWrite(12, LOW);
+        digitalWrite(6, LOW);
+        digitalWrite(5, LOW);
     }
-    if (ValPotMap == 0)
+    if (val == 1)
     {
-        digitalWrite(redLED, HIGH);
-        digitalWrite(yellowLED, LOW);
-        digitalWrite(greenLED, LOW);
+        digitalWrite(13, HIGH);
+        digitalWrite(12, LOW);
+        digitalWrite(6, LOW);
+        digitalWrite(5, LOW);
     }
-    Serial.println();
-    Serial.println();
-    delay(50);
-    PORTD = num[ValPotMap];
+    if (val == 2)
+    {
+        digitalWrite(13, LOW);
+        digitalWrite(12, HIGH);
+        digitalWrite(6, LOW);
+        digitalWrite(5, LOW);
+        digitalWrite(7, HIGH);
+    }
+    if (val == 3)
+    {
+        digitalWrite(13, HIGH);
+        digitalWrite(12, HIGH);
+        digitalWrite(6, LOW);
+        digitalWrite(5, LOW);
+    }
+    if (val == 4)
+    {
+        digitalWrite(13, LOW);
+        digitalWrite(12, LOW);
+        digitalWrite(6, HIGH);
+        digitalWrite(5, LOW);
+    }
+    if (val == 5)
+    {
+        digitalWrite(13, HIGH);
+        digitalWrite(12, LOW);
+        digitalWrite(6, HIGH);
+        digitalWrite(5, LOW);
+    }
+    if (val == 6)
+    {
+        digitalWrite(13, LOW);
+        digitalWrite(12, HIGH);
+        digitalWrite(6, HIGH);
+        digitalWrite(5, LOW);
+    }
+    if (val == 7)
+    {
+        digitalWrite(13, HIGH);
+        digitalWrite(12, HIGH);
+        digitalWrite(6, HIGH);
+        digitalWrite(5, LOW);
+    }
+    if (val == 8)
+    {
+        digitalWrite(13, LOW);
+        digitalWrite(12, LOW);
+        digitalWrite(6, LOW);
+        digitalWrite(5, HIGH);
+    }
+    if (val == 9)
+    {
+        digitalWrite(13, HIGH);
+        digitalWrite(12, LOW);
+        digitalWrite(6, LOW);
+        digitalWrite(5, HIGH);
+    }
 }
