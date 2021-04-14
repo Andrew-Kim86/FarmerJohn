@@ -52,10 +52,10 @@
 #define pSpeaker 11
 #define pHeadServo 9
 #define pArmServo 10
-#define hex0 5
-#define hex1 6
-#define hex2 12
-#define hex3 13
+#define hex0 13
+#define hex1 12
+#define hex2 6
+#define hex3 5
 
 //Song Parameters
 int ConductorOctave = 4;
@@ -149,7 +149,7 @@ void setup()
   //Servos
   HeadServo.attach(pHeadServo);
   ArmServo.attach(pArmServo);
-  HeadServo.write(0);
+  HeadServo.write(20);
   ArmServo.write(0);
 
   //Hex
@@ -157,6 +157,7 @@ void setup()
   pinMode(hex1, OUTPUT);
   pinMode(hex2, OUTPUT);
   pinMode(hex3, OUTPUT);
+  octaveOut();
 
   //Octave
   pinMode(oct0, OUTPUT);
@@ -176,7 +177,7 @@ void setup()
 
 void idle()
 {
-  if(digitalRead(pOctaveCycle) == LOW)
+  if(digitalRead(pOctaveCycle) == HIGH)
   {
     ConductorOctave = ++ConductorOctave;
     if(ConductorOctave == 8)
@@ -188,9 +189,9 @@ void idle()
     Serial.print(", ");
     Serial.print(MyOctave);
     Serial.print("\n");
-    delay(75);
+    delay(150);
   }
-  if(digitalRead(pPlay) == LOW)
+  if(digitalRead(pPlay) == HIGH)
   {
     currentState = SYNC;
     delay(75);
@@ -223,17 +224,34 @@ void play()
 {
   i_note_index = 1;
   int duration;
-  int servoPos = 0;
+  bool clockwise = false;
+  int headServoPos = 20;
+  int armServoPos = 0;
   for(int i = 0; i < 53; i++)
   {
     //position servos
-    servoPos = (servoPos+15)%180;
-    HeadServo.write(servoPos);
-    ArmServo.write(servoPos);
+    if (!clockwise)
+    {
+      headServoPos+=14;
+      armServoPos+=7;
+      if(armServoPos >= 70 || headServoPos >= 140)
+        clockwise = true;
+    }
+    else
+    {
+      headServoPos-=14;
+      armServoPos-=7;
+      if (armServoPos <= 0 || headServoPos <=20)
+        clockwise = false;
+    }
+    HeadServo.write(headServoPos);
+    ArmServo.write(armServoPos);
     //play the song
     duration = beats[i] * song_tempo;
     tone(pSpeaker, notes[i]*pow(2,MyOctave), duration);
     delay(duration);
+    if(digitalRead(pOctaveCycle) == HIGH)
+      break;
   }
   //delay(duration/2);
   currentState = IDLE;
@@ -250,7 +268,11 @@ void loop()
       sync();
       break;
     case PLAY:
+      digitalWrite(pRedLED, LOW);
+      digitalWrite(pYellowLED, LOW);
+      digitalWrite(pGreenLED, HIGH);
       play();
+      digitalWrite(pGreenLED, LOW);
       break;
   }
 }
