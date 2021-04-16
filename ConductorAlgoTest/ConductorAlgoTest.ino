@@ -61,15 +61,34 @@ void setup()
   Serial.begin(9600);
     Serial.print("Setup Complete\n");
 }
-
+int i_note_index = 0;
 void loop()
 {
   int duration;                  
   int tempo;
   int tempo_pot;
+
+  tempo = song_tempo;
+      
+      //play the song
+      duration = beats[i_note_index] * tempo;
+      if(notes[i_note_index] != rest)
+        digitalWrite(6, HIGH);
+      tone(speakerPIN, notes[i_note_index], duration);
+      delay(duration);
+      digitalWrite(6, LOW);
+      Serial.print(i_note_index);
+      Serial.print("\n");
+      //increment the note counter
+      ++i_note_index;
+      if(i_note_index >= songLength) 
+      {
+        i_note_index = 0;
+      }
+  
   
     //block here while the box is closed
-  while(digitalRead(A1)==0) //check the tilt sensor
+  /*while(digitalRead(A1)==0) //check the tilt sensor
   { 
       Serial.print("Waiting for Box to open. Tilt = ");
       Serial.print(digitalRead(A1));
@@ -97,5 +116,5 @@ void loop()
       {
         i_note_index = 0;
       }
-  }
+  }*/
 }

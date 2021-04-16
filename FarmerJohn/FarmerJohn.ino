@@ -54,10 +54,10 @@
 #define pSpeaker 11
 #define pHeadServo 9
 #define pArmServo 10
-#define hex0 5
-#define hex1 6
-#define hex2 12
-#define hex3 13
+#define hex0 13
+#define hex1 12
+#define hex2 6
+#define hex3 5
 
 //Song Parameters
 int ConductorOctave = 4;
@@ -174,6 +174,7 @@ void setup()
   delay(1000);
   digitalWrite(pYellowLED, LOW);
   digitalWrite(pGreenLED, LOW);
+  delay(500);
 }
 
 void idle()
@@ -181,26 +182,26 @@ void idle()
   if(digitalRead(pOctaveUp) == HIGH && ConductorOctave != 7)
   {
     ConductorOctave = ++ConductorOctave;
-    MyOctave = (ConductorOctave-3)%4+4;
+    MyOctave = ConductorOctave+1;
     octaveOut();
     Serial.print("Conductor Octave|MyOctave: ");
     Serial.print(ConductorOctave);
     Serial.print(", ");
     Serial.print(MyOctave);
     Serial.print("\n");
-    delay(75);
+    delay(150);
   }
-  if(digitalRead(pOctaveDown) == LOW && ConductorOctave != 4)
+  if(digitalRead(pOctaveDown) == HIGH && ConductorOctave != 4)
   {
     ConductorOctave = --ConductorOctave;
-    MyOctave = (ConductorOctave-3)%4+4;
+    MyOctave = ConductorOctave+1;
     octaveOut();
     Serial.print("Conductor Octave|MyOctave: ");
     Serial.print(ConductorOctave);
     Serial.print(", ");
     Serial.print(MyOctave);
     Serial.print("\n");
-    delay(75);
+    delay(150);
   }
   if(digitalRead(pConductorSignal) == HIGH)
   {
@@ -219,10 +220,17 @@ void sync()
   long t3 = millis();
   calc1 = (t2-t1)/2;
   calc2 = t3-t2;
-  if(abs(calc1-calc2) <= 5)
+  song_tempo = (t2-t1)/2;
+  if (song_tempo < 100 || song_tempo > 700)
+  {
+    currentState = IDLE;
+    return;
+  }
+  /*if(abs(calc1-calc2) <= 5)
     song_tempo = (calc1+calc2)/2;
   else
     song_tempo = (calc1 > calc2) ? calc1 : calc2;
+  */
   Serial.print("Tempo: ");
   Serial.print(song_tempo);
   Serial.print("\n");
@@ -236,7 +244,7 @@ void play()
   bool clockwise = false;
   int headServoPos = 20;
   int armServoPos = 0;
-  for(int i = 2; i < 53; i++)
+  for(int i = 1; i < 53; i++)
   {
     //position servos
     if (!clockwise)
